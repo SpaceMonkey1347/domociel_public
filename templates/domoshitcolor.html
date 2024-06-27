@@ -101,7 +101,7 @@
         }
 
         #fill-color {
-            width: calc(100% - 100px);
+            width: calc(100% - 250px);
             padding: 5px;
             background-color: #333;
             color: #f0f0f0;
@@ -151,6 +151,60 @@
             visibility: visible;
             opacity: 1;
         }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 23px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 34px;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 15px;
+            width: 15px;
+            left: 4px;
+            bottom: 4px;
+            border-radius: 50%;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(18px);
+            -ms-transform: translateX(18px);
+            transform: translateX(18px);
+        }
+
     </style>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-F7TM0CQPC7"></script>
@@ -192,13 +246,19 @@
         <div id="input-wrapper">
             <div id="fill-color-wrapper">
                 <label for="color" class="tooltip">Fill Color
-                    <span class="tooltiptext">Sliders above will update this value, if this value is a hex number, then it will remain a hex value when changing sliders. Example usage: #223344, rgb(22,33,44), rgba(22,33,44,0.5), pink, teal, aqua...</span>
+                    <span class="tooltiptext">Example usage: #223344, rgb(22,33,44), rgba(22,33,44,0.5), pink, teal, aqua...</span>
                 </label>
                 <input type="text" id="fill-color" name="color" placeholder="#223344, rgb(22,33,44), rgba(22,33,44,0.5), pink, teal, aqua...">
+                <div>RGB</div>
+                <label class="switch">
+                    <input type="checkbox" id="rgb-hex-switch" checked>
+                    <span class="slider round"></span>
+                </label>
+                <div>HEX</div>
             </div>
             <button type="button" id="save-btn">Download</button>
         </div>
-        <button onclick="location.href='{{ url_for('home') }}'">Back to Index</button>
+        <button onclick="location.href='/'">Back to Index</button>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -206,6 +266,8 @@
             const fillColor = document.getElementById('fill-color');
             const colorRanges = document.querySelectorAll('.color-range');
             const colorOutputs = document.querySelectorAll('.color-output');
+            const rgbHexSwitch = document.getElementById('rgb-hex-switch')
+            let fillHex = rgbHexSwitch.checked
 
             const setColor = (color) => {
                 circle.setAttribute('fill', color);
@@ -224,8 +286,8 @@
                 const g = parseInt(document.getElementById('green-range').value);
                 const b = parseInt(document.getElementById('blue-range').value);
                 const a = parseInt(document.getElementById('alpha-range').value) / 100;
-                
-                if (fillColor.value.startsWith('#')) {
+
+                if (fillHex) {
                     return `#${intToHex(r)}${intToHex(g)}${intToHex(b)}${a < 1 ? intToHex(Math.round(a * 255)) : ''}`;
                 } else if (a < 1) {
                     return `rgba(${r}, ${g}, ${b}, ${a})`;
@@ -271,6 +333,11 @@
                     updateColor();
                 });
             });
+
+            rgbHexSwitch.addEventListener('change', (event) => {
+                fillHex = rgbHexSwitch.checked
+                updateColor()
+            })
 
             document.getElementById('save-btn').addEventListener('click', () => {
                 const svgContent = document.getElementById('circle-wrapper').innerHTML;
