@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Dimensions</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #ffffff;
+        }
+
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .file-input {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #6200ea;
+            color: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        #dimensions-result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Dimensions</h1>
+        <form id="dimensions-form" enctype="multipart/form-data">
+            <div class="file-input">
+                <input type="file" name="file" accept="image/*" required>
+            </div>
+            <button type="submit">Get Dimensions</button>
+        </form>
+        <div id="dimensions-result"></div>
+        <button onclick="location.href='{{ url_for('home') }}'">Back to Index</button>
+    </div>
+
+    <script>
+        document.getElementById('dimensions-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('POST', '/dimensions', true);
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const result = JSON.parse(xhr.responseText);
+                    document.getElementById('dimensions-result').textContent = `Width: ${result.width}px, Height: ${result.height}px`;
+                } else {
+                    alert('An error occurred while getting the dimensions.');
+                }
+            };
+
+            xhr.onerror = function() {
+                alert('An error occurred while getting the dimensions.');
+            };
+
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>

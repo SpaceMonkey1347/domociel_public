@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equation Solver</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #ffffff;
+        }
+
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #6200ea;
+            background-color: #333;
+            color: #f0f0f0;
+            transition: border 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #3700b3;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #6200ea;
+            color: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #bbb;
+        }
+
+        .notification {
+            margin-top: 16px;
+            font-size: 1rem;
+            color: #ff6b6b;
+        }
+
+        .details {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #ddd;
+        }
+
+        .tutorial {
+            margin-top: 40px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: #2e2e2e;
+            text-align: left;
+            color: #fff;
+        }
+
+        .tutorial h2 {
+            color: #ffffff;
+        }
+
+        .tutorial pre {
+            background-color: #121212;
+            padding: 10px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Equation Solver</h1>
+        <form id="solve-form">
+            <input type="text" name="equation" placeholder="Enter an equation, e.g., 2*x^3=y^2" required>
+            <button type="submit">Solve</button>
+        </form>
+        <div id="result" class="result"></div>
+        <div id="notification" class="notification"></div>
+        <div id="details" class="details"></div>
+        <button onclick="location.href='{{ url_for('home') }}'">Back to Index</button>
+    </div>
+
+    <div class="tutorial">
+        <h2>How to Format Equations</h2>
+        <p>Use the following guidelines to format your equations correctly:</p>
+        <ul>
+            <li>Use <code>*</code> for multiplication: <code>2*x</code> instead of <code>2x</code>.</li>
+            <li>Use <code>/</code> for division: <code>x/2</code>.</li>
+            <li>Use <code>^</code> for exponents: <code>x^2</code> for x squared.</li>
+            <li>Combine terms appropriately: <code>2*x + 3*y = 7</code>.</li>
+        </ul>
+        <h3>Examples:</h3>
+        <pre>
+2*x^2 + 3*x - 5 = 0
+4*y^2 - 16 = 0
+x^3 + 2*x^2 + x + 1 = 0
+        </pre>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.1.0/math.min.js"></script>
+    <script>
+        document.getElementById('solve-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const equation = event.target.elements.equation.value.replace(/\*\*/g, '^'); // Replace ** with ^
+            const notification = document.getElementById('notification');
+            const result = document.getElementById('result');
+            const details = document.getElementById('details');
+
+            try {
+                const sides = equation.split('=');
+                if (sides.length !== 2) {
+                    throw new Error('Invalid equation format');
+                }
+
+                const leftSide = sides[0];
+                const rightSide = sides[1];
+                
+                // Move all terms to one side of the equation to form a solvable equation
+                const solvableEquation = `${leftSide}-(${rightSide})`;
+
+                const parsedEquation = math.parse(solvableEquation);
+                const simplifiedEquation = math.simplify(parsedEquation);
+                const variables = Object.keys(simplifiedEquation.filter(node => node.isSymbolNode).reduce((acc, node) => {
+                    acc[node.name] = true;
+                    return acc;
+                }, {}));
+                
+                let solution = null;
+                if (variables.length === 1) {
+                    solution = solveForSingleVariable(simplifiedEquation.toString(), variables[0]);
+                } else if (variables.length > 1) {
+                    solution = solveForMultipleVariables(simplifiedEquation.toString(), variables);
+                } else {
+                    throw new Error('No variables found in the equation');
+                }
+
+                result.textContent = `Solution: ${solution}`;
+                details.innerHTML = `
+                    <p><strong>Original Equation:</strong> ${equation}</p>
+                    <p><strong>Simplified Equation:</strong> ${simplifiedEquation.toString()}</p>
+                `;
+                notification.textContent = '';
+            } catch (error) {
+                notification.textContent = `Error: ${error.message}`;
+                result.textContent = '';
+                details.textContent = '';
+            }
+        });
+
+        function solveForSingleVariable(equation, variable) {
+            // Implement a numerical solver for single variable equations
+            const solutions = [];
+            for (let i = -100; i <= 100; i += 0.1) {
+                const scope = {};
+                scope[variable] = i;
+                const value = math.evaluate(equation, scope);
+                if (Math.abs(value) < 1e-5) {
+                    solutions.push(i.toFixed(5));
+                }
+            }
+            return solutions.length > 0 ? solutions.join(', ') : 'No solutions found';
+        }
+
+        function solveForMultipleVariables(equation, variables) {
+            return 'Solving multiple variables is not supported yet';
+        }
+    </script>
+</body>
+</html>

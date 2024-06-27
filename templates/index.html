@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Directory</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="A collection of web tools including color generators, image converters, image croppers, and more. Easily access and use these tools for your projects.">
+    <meta name="keywords" content="web tools, color generator, image converter, image cropper, file compressor, password generator, online tools, free web tools">
+    <meta name="author" content="domovyk1 and nanami2002">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Domociel - Free Web Tools Collection">
+    <meta property="og:description" content="A collection of web tools including color generators, image converters, image croppers, and more. Easily access and use these tools for your projects.">
+    <meta property="og:image" content="https://cielgames.xyz/static/domociel.png"> 
+    <meta property="og:url" content="https://cielgames.xyz/"> 
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Domociel - Free Web Tools Collection">
+    <meta name="twitter:description" content="A collection of web tools including color generators, image converters, image croppers, and more. Easily access and use these tools for your projects.">
+    <meta name="twitter:image" content="https://cielgames.xyz/static/domociel.png"> 
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #f0f0f0;
+            background-color: #121212;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin: 20px 0;
+            font-size: 2.5rem;
+        }
+
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .button {
+            flex: 1 0 21%; /* About 1/4th of the container width */
+            max-width: calc(25% - 20px); /* Subtracting the gap */
+            min-width: 150px;
+            margin: 10px;
+            padding: 15px 25px;
+            background-color: #6200ea;
+            color: #f0f0f0;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .button:hover {
+            background-color: #3700b3;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 1024px) {
+            .button {
+                flex: 1 0 46%; /* About 1/2 of the container width on smaller screens */
+                max-width: calc(50% - 20px); /* Subtracting the gap */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .button {
+                flex: 1 0 100%; /* Full width on very small screens */
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-F7TM0CQPC7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-F7TM0CQPC7');
+    </script>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5687194676866462"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Domociel - Free Web Tools Collection</h1>
+        <div class="button-container">
+            <a href="{{ url_for('domoshitcolor') }}" class="button">Domo's Color Generator</a>
+            <a href="{{ url_for('convert') }}" class="button">Image Converter</a>
+            <a href="{{ url_for('crop') }}" class="button">Image Resizer</a>
+            <a href="{{ url_for('dimensions') }}" class="button">Image Dimensions</a>
+            <a href="{{ url_for('password_generator') }}" class="button">Password Generator</a>
+            <a href="{{ url_for('compress') }}" class="button">File Compressor</a>
+            <a href="{{ url_for('solve') }}" class="button">Equation Solver</a>
+
+        </div>
+    </div>
+</body>
+</html>

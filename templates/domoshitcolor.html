@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Circle Color Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #f0f0f0;
+            background-color: #121212;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1, h3 {
+            margin: 10px 0;
+        }
+
+        #main-content-wrapper {
+            width: 500px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #1e1e1e;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #circle-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        #circle-wrapper svg {
+            width: 100px;
+            height: 100px;
+        }
+
+        #color-picker-wrapper, #input-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .color-range-wrapper {
+            display: flex;
+            width: 100%;
+            margin: 5px 0;
+            align-items: center;
+        }
+
+        .color-output {
+            width: 60px;
+            margin-right: 10px;
+            background-color: #333;
+            color: #f0f0f0;
+            border: 1px solid #444;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .color-range {
+            flex: 1;
+            appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #444;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #red-range {
+            background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(255,0,0,1) 100%);
+        }
+
+        #green-range {
+            background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,255,0,1) 100%);
+        }
+
+        #blue-range {
+            background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,255,1) 100%);
+        }
+
+        #alpha-range {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+        }
+
+        #fill-color-wrapper {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        #fill-color {
+            width: calc(100% - 100px);
+            padding: 5px;
+            background-color: #333;
+            color: #f0f0f0;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #6200ea;
+            color: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #f0f0f0;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: #333;
+            color: #f0f0f0;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; 
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-F7TM0CQPC7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-F7TM0CQPC7');
+    </script>
+</head>
+<body>
+    <h1>Circle Color Generator</h1>
+    <h3>By domovyk1 and nanami2002</h3>
+    <div id="main-content-wrapper">
+        <div id="circle-wrapper">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="50" />
+            </svg>
+        </div>
+        <div id="color-picker-wrapper">
+            <div class="color-range-wrapper">
+                <input type="number" class="color-output" value="128">
+                <input type="range" class="color-range" id="red-range" name="red" min="0" max="255" value="128">
+            </div>
+            <div class="color-range-wrapper">
+                <input type="number" class="color-output" value="128">
+                <input type="range" class="color-range" id="green-range" name="green" min="0" max="255" value="128">
+            </div>
+            <div class="color-range-wrapper">
+                <input type="number" class="color-output" value="128">
+                <input type="range" class="color-range" id="blue-range" name="blue" min="0" max="255" value="128">
+            </div>
+            <div class="color-range-wrapper">
+                <input type="number" class="color-output" value="100">
+                <input type="range" class="color-range" id="alpha-range" name="alpha" min="0" max="100" value="100">
+            </div>
+        </div>
+        <div id="input-wrapper">
+            <div id="fill-color-wrapper">
+                <label for="color" class="tooltip">Fill Color
+                    <span class="tooltiptext">Sliders above will update this value, if this value is a hex number, then it will remain a hex value when changing sliders. Example usage: #223344, rgb(22,33,44), rgba(22,33,44,0.5), pink, teal, aqua...</span>
+                </label>
+                <input type="text" id="fill-color" name="color" placeholder="#223344, rgb(22,33,44), rgba(22,33,44,0.5), pink, teal, aqua...">
+            </div>
+            <button type="button" id="save-btn">Download</button>
+        </div>
+        <button onclick="location.href='{{ url_for('home') }}'">Back to Index</button>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const circle = document.querySelector('circle');
+            const fillColor = document.getElementById('fill-color');
+            const colorRanges = document.querySelectorAll('.color-range');
+            const colorOutputs = document.querySelectorAll('.color-output');
+
+            const setColor = (color) => {
+                circle.setAttribute('fill', color);
+                fillColor.value = color;
+            };
+
+            const intToHex = (int) => {
+                let hex = int.toString(16);
+                return hex.length === 1 ? "0" + hex : hex;
+            };
+
+            const hexToInt = (hex) => parseInt(hex, 16);
+
+            const getColorStr = () => {
+                const r = parseInt(document.getElementById('red-range').value);
+                const g = parseInt(document.getElementById('green-range').value);
+                const b = parseInt(document.getElementById('blue-range').value);
+                const a = parseInt(document.getElementById('alpha-range').value) / 100;
+                
+                if (fillColor.value.startsWith('#')) {
+                    return `#${intToHex(r)}${intToHex(g)}${intToHex(b)}${a < 1 ? intToHex(Math.round(a * 255)) : ''}`;
+                } else if (a < 1) {
+                    return `rgba(${r}, ${g}, ${b}, ${a})`;
+                } else {
+                    return `rgb(${r}, ${g}, ${b})`;
+                }
+            };
+
+            const updateColor = () => {
+                const color = getColorStr();
+                setColor(color);
+            };
+
+            fillColor.addEventListener('input', () => {
+                const color = fillColor.value;
+                if (color.startsWith('#')) {
+                    const r = hexToInt(color.slice(1, 3));
+                    const g = hexToInt(color.slice(3, 5));
+                    const b = hexToInt(color.slice(5, 7));
+                    const a = color.length === 9 ? hexToInt(color.slice(7, 9)) / 255 : 1;
+                    document.getElementById('red-range').value = r;
+                    document.getElementById('green-range').value = g;
+                    document.getElementById('blue-range').value = b;
+                    document.getElementById('alpha-range').value = a * 100;
+                } else if (color.startsWith('rgb')) {
+                    const rgba = color.match(/\d+/g).map(Number);
+                    document.getElementById('red-range').value = rgba[0];
+                    document.getElementById('green-range').value = rgba[1];
+                    document.getElementById('blue-range').value = rgba[2];
+                    document.getElementById('alpha-range').value = rgba[3] ? rgba[3] * 100 : 100;
+                }
+                updateColor();
+            });
+
+            colorRanges.forEach((range, i) => {
+                const output = colorOutputs[i];
+                range.addEventListener('input', () => {
+                    output.value = range.value;
+                    updateColor();
+                });
+                output.addEventListener('input', () => {
+                    range.value = output.value;
+                    updateColor();
+                });
+            });
+
+            document.getElementById('save-btn').addEventListener('click', () => {
+                const svgContent = document.getElementById('circle-wrapper').innerHTML;
+                const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'circle.svg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            updateColor();
+        });
+    </script>
+</body>
+</html>

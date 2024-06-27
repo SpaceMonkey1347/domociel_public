@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Resizer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #ffffff;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px; /* Réduire la largeur maximale */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            width: 100%;
+        }
+
+        .file-input, .resize-select {
+            max-width: 300px; /* Limiter la largeur */
+            margin: 0 auto 20px auto; /* Centrer le conteneur et ajouter une marge en bas */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: #bbb;
+        }
+
+        input[type="number"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #6200ea;
+            background-color: #333;
+            color: #f0f0f0;
+            transition: border 0.3s ease;
+        }
+
+        input[type="number"]:focus, input[type="file"]:focus {
+            border-color: #3700b3;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #6200ea;
+            color: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        #progress-container {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+            height: 20px;
+            background-color: #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: #6200ea;
+            transition: width 0.4s;
+        }
+    </style>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-F7TM0CQPC7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-F7TM0CQPC7');
+    </script>
+</head>
+<body>
+    <div class="main-container">
+        <div class="container">
+            <h1>Image Resizer</h1>
+            <form id="resize-form" enctype="multipart/form-data">
+                <div class="file-input">
+                    <label for="file">Upload Image:</label>
+                    <input type="file" name="file" accept="image/*" required>
+                </div>
+                <div class="resize-select">
+                    <label for="width">Width (px):</label>
+                    <input type="number" name="width" id="width" required>
+                    <label for="height">Height (px):</label>
+                    <input type="number" name="height" id="height" required>
+                </div>
+                <button type="submit">Resize</button>
+            </form>
+            <div id="progress-container">
+                <div id="progress-bar"></div>
+            </div>
+            <button onclick="location.href='{{ url_for('home') }}'">Back to Index</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('resize-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('POST', '/crop', true);
+
+            xhr.upload.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    const percentComplete = (event.loaded / event.total) * 100;
+                    document.getElementById('progress-bar').style.width = percentComplete + '%';
+                }
+            };
+
+            xhr.onloadstart = function() {
+                document.getElementById('progress-container').style.display = 'block';
+                document.getElementById('progress-bar').style.width = '0';
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const blob = new Blob([xhr.response], { type: xhr.getResponseHeader('Content-Type') });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = xhr.getResponseHeader('Content-Disposition').split('filename=')[1].replace(/"/g, '');
+                    link.click();
+                } else {
+                    alert('An error occurred while resizing the image.');
+                }
+                document.getElementById('progress-container').style.display = 'none';
+            };
+
+            xhr.onerror = function() {
+                alert('An error occurred while resizing the image.');
+                document.getElementById('progress-container').style.display = 'none';
+            };
+
+            xhr.responseType = 'blob';
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>

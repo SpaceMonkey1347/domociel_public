@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Converter</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #ffffff;
+        }
+
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .note {
+            font-size: 0.9rem;
+            color: #bbb;
+            margin-bottom: 20px;
+        }
+
+        .file-input, .format-select {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+            color: #bbb;
+        }
+
+        input[type="file"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #6200ea;
+            background-color: #333;
+            color: #f0f0f0;
+            transition: border 0.3s ease;
+        }
+
+        input[type="file"]:focus, select:focus {
+            border-color: #3700b3;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #6200ea;
+            color: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        #progress-container {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+            height: 20px;
+            background-color: #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: #6200ea;
+            transition: width 0.4s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Converter</h1>
+        <div class="note">
+            Please note: The maximum file size allowed is 500 MB.
+        </div>
+        <form id="upload-form" enctype="multipart/form-data">
+            <div class="file-input">
+                <label for="file">Upload Image:</label>
+                <input type="file" name="file" id="file" accept="image/*, .svg, .ai, .psd, .eps, .tiff, .bmp, .dng, .cr2, .nef, .orf, .arw" required>
+            </div>
+            <div class="format-select">
+                <label for="format">Convert to:</label>
+                <select name="format" id="format" required>
+                    <option value="png">PNG</option>
+                    <option value="jpg">JPG</option>
+                    <option value="webp">WEBP</option>
+                    <option value="svg">SVG</option>
+                    <option value="avif">AVIF</option>
+                </select>
+            </div>
+            <button type="submit">Convert</button>
+        </form>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <button onclick="location.href='{{ url_for('home') }}'">Back to Index</button>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('POST', '/convert', true);
+
+            xhr.upload.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    const percentComplete = (event.loaded / event.total) * 100;
+                    document.getElementById('progress-bar').style.width = percentComplete + '%';
+                }
+            };
+
+            xhr.onloadstart = function() {
+                document.getElementById('progress-container').style.display = 'block';
+                document.getElementById('progress-bar').style.width = '0';
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const blob = new Blob([xhr.response], { type: xhr.getResponseHeader('Content-Type') });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = xhr.getResponseHeader('Content-Disposition').split('filename=')[1].replace(/"/g, '');
+                    link.click();
+                } else {
+                    alert('An error occurred while converting the image.');
+                }
+                document.getElementById('progress-container').style.display = 'none';
+            };
+
+            xhr.onerror = function() {
+                alert('An error occurred while converting the image.');
+                document.getElementById('progress-container').style.display = 'none';
+            };
+
+            xhr.responseType = 'blob';
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>
